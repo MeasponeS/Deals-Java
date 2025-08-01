@@ -1,6 +1,6 @@
 package com.example.smartreminder.controller;
 
-import com.example.smartreminder.model.Memo;
+import com.example.smartreminder.dto.MemoDto;
 import com.example.smartreminder.service.MemoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,21 +18,22 @@ public class MemoController {
     private MemoService memoService;
 
     @GetMapping
-    public List<Memo> getAllMemos(Authentication authentication) {
+    public List<MemoDto> getAllMemos(Authentication authentication,
+                                     @RequestParam(required = false) String title) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return memoService.getMemosByUser(userDetails.getUsername());
+        return memoService.getMemos(userDetails.getUsername(), title);
     }
 
     @PostMapping
-    public Memo createMemo(@RequestBody Memo memo, Authentication authentication) {
+    public MemoDto createMemo(@RequestBody MemoDto memoDto, Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return memoService.createMemo(memo, userDetails.getUsername());
+        return memoService.createMemo(memoDto, userDetails.getUsername());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Memo> updateMemo(@PathVariable(value = "id") Long memoId,
-                                           @RequestBody Memo memoDetails) {
-        final Memo updatedMemo = memoService.updateMemo(memoId, memoDetails);
+    public ResponseEntity<MemoDto> updateMemo(@PathVariable(value = "id") Long memoId,
+                                              @RequestBody MemoDto memoDto) {
+        final MemoDto updatedMemo = memoService.updateMemo(memoId, memoDto);
         return ResponseEntity.ok(updatedMemo);
     }
 
@@ -41,4 +42,4 @@ public class MemoController {
         memoService.deleteMemo(memoId);
         return ResponseEntity.ok().build();
     }
-} 
+}

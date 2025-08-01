@@ -14,11 +14,18 @@ public class Todo {
 
     private String title;
     private String content;
-    private boolean completed;
+
+    @Enumerated(EnumType.STRING)
+    private TodoStatus status;
+
     private LocalDateTime createdAt;
     private LocalDateTime dueAt;
+    private LocalDateTime reminderAt;
+
+    @Enumerated(EnumType.STRING)
+    private Urgency urgency;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-} 
+}

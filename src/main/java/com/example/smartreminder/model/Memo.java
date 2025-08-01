@@ -14,10 +14,11 @@ public class Memo {
 
     private String title;
     private String content;
+    private String tags;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-} 
+}

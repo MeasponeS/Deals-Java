@@ -1,6 +1,9 @@
 package com.example.smartreminder.controller;
 
-import com.example.smartreminder.model.Todo;
+import com.example.smartreminder.dto.TodoGroupByDateResponse;
+import com.example.smartreminder.dto.TodoRequest;
+import com.example.smartreminder.dto.TodoResponse;
+import com.example.smartreminder.model.TodoStatus;
 import com.example.smartreminder.service.TodoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,21 +21,35 @@ public class TodoController {
     private TodoService todoService;
 
     @GetMapping
-    public List<Todo> getAllTodos(Authentication authentication) {
+    public List<TodoResponse> getAllTodos(Authentication authentication,
+                                          @RequestParam(required = false) String title,
+                                          @RequestParam(required = false) TodoStatus status) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return todoService.getTodosByUser(userDetails.getUsername());
+        return todoService.getTodos(userDetails.getUsername(), title, status);
+    }
+
+    @GetMapping("/by-date")
+    public List<TodoGroupByDateResponse> getTodosGroupedByDate(Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        return todoService.getTodosGroupedByDate(userDetails.getUsername());
     }
 
     @PostMapping
-    public Todo createTodo(@RequestBody Todo todo, Authentication authentication) {
+    public TodoResponse createTodo(@RequestBody TodoRequest todoRequest, Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return todoService.createTodo(todo, userDetails.getUsername());
+        return todoService.createTodo(todoRequest, userDetails.getUsername());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Todo> updateTodo(@PathVariable(value = "id") Long todoId,
-                                           @RequestBody Todo todoDetails) {
-        final Todo updatedTodo = todoService.updateTodo(todoId, todoDetails);
+    public ResponseEntity<TodoResponse> updateTodo(@PathVariable(value = "id") Long todoId,
+                                                   @RequestBody TodoRequest todoRequest) {
+        final TodoResponse updatedTodo = todoService.updateTodo(todoId, todoRequest);
+        return ResponseEntity.ok(updatedTodo);
+    }
+
+    @PutMapping("/{id}/complete")
+    public ResponseEntity<TodoResponse> markAsCompleted(@PathVariable(value = "id") Long todoId) {
+        final TodoResponse updatedTodo = todoService.markAsCompleted(todoId);
         return ResponseEntity.ok(updatedTodo);
     }
 
@@ -41,4 +58,4 @@ public class TodoController {
         todoService.deleteTodo(todoId);
         return ResponseEntity.ok().build();
     }
-} 
+}
